@@ -4,43 +4,43 @@ import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 
 import {
+  Checkbox,
+  DropDownSelector,
   Editor,
   ErrorPopup,
   RangeSliderTextbox,
-  DropDownSelector
+  Textbox,
 } from '../components';
 
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 
+import GPT3Tokenizer from 'gpt3-tokenizer';
 import { Configuration, OpenAIApi } from "openai";
 
+const gpt3Tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+const codexTokenizer = new GPT3Tokenizer({ type: 'codex' });
+
 const models = [
-  'text-davinci-003',
-  'text-curie-001',
-  'text-babbage-001',
-  'text-ada-001',
-]
-
-
-const configuration = new Configuration({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-
+  {id: 'text-davinci-003', name: 'text-davinci-003', max_tokens: 4096, tokenizer: gpt3Tokenizer },
+  {id: 'text-curie-001',   name: 'text-curie-001',   max_tokens: 2048, tokenizer: gpt3Tokenizer },
+  {id: 'text-babbage-001', name: 'text-babbage-001', max_tokens: 2048, tokenizer: gpt3Tokenizer },
+  {id: 'text-ada-001',     name: 'text-ada-001',     max_tokens: 2048, tokenizer: gpt3Tokenizer },
+];
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [advanced, setAdvanced] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY === '' || process.env.NEXT_PUBLIC_OPENAI_BASE_URI === '')
 
   const [errorPopupContent, setErrorPopupContent] = useState('')
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
 
   const [input, setInput] = useState('');
 
-  const [model, setModel] = useState({
-    id:   models[0],
-    name: models[0],
-  })
+  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+  const [basePath, setBasePath] = useState(process.env.NEXT_PUBLIC_OPENAI_BASE_URI || 'https://api.openai.com/v1');
+
+  const [model, setModel] = useState(models[0])
   const [temperature, setTemperature] = useState(0.8);
   const [maxTokens, setMaxTokens] = useState(256);
   const [topP, setTopP] = useState(1.0);
@@ -50,6 +50,12 @@ export default function Home() {
   const [restartText, setRestartText] = useState('');
 
   async function handleSubmit() {
+    const configuration = new Configuration({
+      apiKey,
+      basePath,
+    });
+    const openai = new OpenAIApi(configuration);
+
 	let completion;
     const req = {
       model: model.id,
@@ -73,6 +79,9 @@ export default function Home() {
     const resp = completion.data.choices[0].text;
     setInput(input + resp);
   }
+
+  const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
+  console.log(encoded)
 
   return (
     <>
@@ -119,7 +128,7 @@ export default function Home() {
                 <DropDownSelector
 				  label="Model"
                   tooltip="Bigger models better"
-				  choices={models.map((m) => ({ id: m, name: m }))}
+				  choices={models}
                   selected={model}
                   setSelected={setModel}
                 />
@@ -135,10 +144,10 @@ export default function Home() {
                 />
 
                 <RangeSliderTextbox
-                  label="Maximum Length"
+                  label="Max Tokens"
                   tooltip="Maximum amount of tokens"
                   min={0}
-                  max={2048}
+                  max={model.max_tokens}
                   step={1}
                   value={maxTokens}
                   setValue={setMaxTokens}
@@ -173,14 +182,39 @@ export default function Home() {
                   value={presencePenalty}
                   setValue={setPresencePenalty}
                 />
+
+                <Checkbox
+                  label="Advanced Settings"
+                  tooltip="Show api and base uri settings"
+                  value={advanced}
+                  setValue={setAdvanced}
+                  />
+                <div className={(advanced) ? '' : 'hidden'}>
+                  <Textbox
+                    label="API Key"
+                    tooltip=""
+                    value={apiKey}
+                    setValue={setApiKey}
+                  />
+
+                  <Textbox
+                    label="Base URI"
+                    tooltip="Should look like: https://api.openai.com/v1"
+                    value={basePath}
+                    setValue={setBasePath}
+                  />
+                </div>
               </nav>
             </div>
 		  </div>
 
           <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white">
             <a href="#" className="group block w-full flex-shrink-0">
-              <div className="flex items-center">
-                <div>
+              <div className="flex items-stretch justify-between">
+                <div className="ml-3 bg-slate-200 p-1 pl-4 pr-4 rounded-md">
+                  {encoded.bpe.length}
+                </div>
+                <div className="ml-3">
                   <button
                     type="button"
                     className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -189,9 +223,6 @@ export default function Home() {
                     Submit
                     <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
                   </button>
-                </div>
-                <div className="ml-3">
-		  		{/*TODO show token count here*/}
                 </div>
               </div>
             </a>

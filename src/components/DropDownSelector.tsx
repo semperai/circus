@@ -19,7 +19,7 @@ interface DropDownSelectorProps {
 export default function DropDownSelector(props: DropDownSelectorProps) {
   return (
     <div>
-      <Tooltip content={props.tooltip} style="light" placement="left">
+      <Tooltip content={props.tooltip} style="light" placement="top">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           {props.label}
         </label>

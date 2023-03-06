@@ -28,7 +28,7 @@ export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
 
   return (
     <div className="relative text-sm">
-      <Tooltip content={props.tooltip} style="light" placement="left">
+      <Tooltip content={props.tooltip} style="light" placement="top">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           {props.label}
         </label>
