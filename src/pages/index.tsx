@@ -47,7 +47,7 @@ export default function Home() {
 
   const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY || '');
   const [basePath, setBasePath] = useState(process.env.NEXT_PUBLIC_OPENAI_BASE_URI || 'https://api.openai.com/v1');
-  const [streamResponse, setStreamResponse] = useState(false);
+  const [streamResponse, setStreamResponse] = useState(true);
 
   const [model, setModel] = useState(models[0])
   const [temperature, setTemperature] = useState(0.8);
