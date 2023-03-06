@@ -305,10 +305,8 @@ export default function Home() {
             </div>
             <div className={(showCurl ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-600 text-white'}>
               <code className="text-white text-sm">
-                curl {basePath}/completions
-                -H 'Content-Type: application/json'
-                -H 'Authorization: Bearer {apiKey}'
-                -d '{JSON.stringify({model: model.id, prompt: input, max_tokens: maxTokens, temperature, top_p: topP, presence_penalty: presencePenalty, frequency_penalty: frequencyPenalty, stream: streamResponse, stop: stopSequences.length > 0 ? stopSequences : undefined})}'
+                { /* eslint-disable-next-line react/no-unescaped-entities */ }
+                curl {basePath}/completions -H 'Content-Type: application/json' -H 'Authorization: Bearer {apiKey}' -d '{JSON.stringify({model: model.id, prompt: input, max_tokens: maxTokens, temperature, top_p: topP, presence_penalty: presencePenalty, frequency_penalty: frequencyPenalty, stream: streamResponse, stop: stopSequences.length > 0 ? stopSequences : undefined})}'
               </code>
             </div>
             <div className={(showMarkdown ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-100'}>
