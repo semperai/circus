@@ -21,48 +21,15 @@ import GPT3Tokenizer from 'gpt3-tokenizer';
 import { Configuration, OpenAIApi } from "openai";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 
-const gpt3Tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
-const codexTokenizer = new GPT3Tokenizer({ type: 'codex' });
+import models from '../models.json';
+import presets from '../presets.json';
 
-const models = [
-  {id: 'text-davinci-003', name: 'text-davinci-003', max_tokens: 4096, tokenizer: gpt3Tokenizer },
-  {id: 'text-curie-001',   name: 'text-curie-001',   max_tokens: 2048, tokenizer: gpt3Tokenizer },
-  {id: 'text-babbage-001', name: 'text-babbage-001', max_tokens: 2048, tokenizer: gpt3Tokenizer },
-  {id: 'text-ada-001',     name: 'text-ada-001',     max_tokens: 2048, tokenizer: gpt3Tokenizer },
-  {id: 'code-davinci-002', name: 'code-davinci-002', max_tokens: 4096, tokenizer: codexTokenizer },
-  {id: 'code-cushman-001', name: 'text-cushman-001', max_tokens: 2048, tokenizer: codexTokenizer },
-];
+const tokenizers = {
+  'gpt3':  new GPT3Tokenizer({ type: 'gpt3' }),
+  'codex': new GPT3Tokenizer({ type: 'codex' }),
+};
 
-const presets = [
-  {
-    id: 'default',
-    name: 'default',
-    model: 'text-davinci-003',
-    temperature: 0.8,
-    max_tokens: 256,
-    stop_sequences: [],
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-    start_text: '',
-    restart_text: '',
-    input: 'Example text here',
-  },
-  {
-    id: 'cheap',
-    name: 'cheap',
-    model: 'text-ada-001',
-    temperature: 0.8,
-    max_tokens: 256,
-    stop_sequences: [],
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-    start_text: '',
-    restart_text: '',
-    input: 'Example text here',
-  },
-];
+
 
 export default function Home() {
   const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
@@ -267,7 +234,7 @@ export default function Home() {
   }
 
   // used to get current input token count (bpe.length)
-  const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
+  const encoded: { bpe: number[]; text: string[] } = tokenizers[model.tokenizer].encode(input);
 
   return (
     <>

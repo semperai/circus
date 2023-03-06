@@ -1,0 +1,38 @@
+[
+  {
+    "id": "text-davinci-003",
+    "name": "text-davinci-003",
+    "max_tokens": 4096,
+    "tokenizer": "gpt3"
+  },
+  {
+    "id": "text-curie-001",
+    "name": "text-curie-001",
+    "max_tokens": 2048,
+    "tokenizer": "gpt3"
+  },
+  {
+    "id": "text-babbage-001",
+    "name": "text-babbage-001",
+    "max_tokens": 2048,
+    "tokenizer": "gpt3"
+  },
+  {
+    "id": "text-ada-001",
+    "name": "text-ada-001",
+    "max_tokens": 2048,
+    "tokenizer": "gpt3"
+  },
+  {
+    "id": "code-davinci-002",
+    "name": "code-davinci-002",
+    "max_tokens": 4096,
+    "tokenizer": "codex"
+  },
+  {
+    "id": "code-cushman-001",
+    "name": "text-cushman-001",
+    "max_tokens": 2048,
+    "tokenizer": "codex"
+  }
+]

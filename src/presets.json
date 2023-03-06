@@ -1,0 +1,30 @@
+[
+  {
+    "id": "default",
+    "name": "default",
+    "model": "text-davinci-003",
+    "temperature": 0.8,
+    "max_tokens": 256,
+    "stop_sequences": [],
+    "top_p": 1.0,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0,
+    "start_text": "",
+    "restart_text": "",
+    "input": "Example text here"
+  },
+  {
+    "id": "cheap",
+    "name": "cheap",
+    "model": "text-ada-001",
+    "temperature": 0.8,
+    "max_tokens": 256,
+    "stop_sequences": [],
+    "top_p": 1.0,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0,
+    "start_text": "",
+    "restart_text": "",
+    "input": "Example text here"
+  }
+]
