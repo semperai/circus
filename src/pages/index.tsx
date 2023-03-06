@@ -33,6 +33,37 @@ const models = [
   {id: 'code-cushman-001', name: 'text-cushman-001', max_tokens: 2048, tokenizer: codexTokenizer },
 ];
 
+const presets = [
+  {
+    id: 'default',
+    name: 'default',
+    model: 'text-davinci-003',
+    temperature: 0.8,
+    max_tokens: 256,
+    stop_sequences: [],
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+    start_text: '',
+    restart_text: '',
+    input: 'Example text here',
+  },
+  {
+    id: 'cheap',
+    name: 'cheap',
+    model: 'text-ada-001',
+    temperature: 0.8,
+    max_tokens: 256,
+    stop_sequences: [],
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+    start_text: '',
+    restart_text: '',
+    input: 'Example text here',
+  },
+];
+
 export default function Home() {
   const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
 
@@ -42,6 +73,8 @@ export default function Home() {
 
   const [errorPopupContent, setErrorPopupContent] = useState('')
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
+
+  const [preset, setPreset] = useState(presets[0]);
 
   const [input, setInput] = useState('');
 
@@ -59,7 +92,54 @@ export default function Home() {
   const [startText, setStartText] = useState('');
   const [restartText, setRestartText] = useState('');
 
-  const insertText = (text: string) => {
+  function selectPreset(preset) {
+    const conf = window.confirm('This will reset everything, are you sure?');
+    if (! conf) {
+      return;
+    }
+
+    for (const m of models) {
+      if (m.id === preset.model) {
+        setModel(m);
+        break;
+      }
+    }
+    setTemperature(preset.temperature);
+    setMaxTokens(preset.max_tokens);
+    setStopSequences(preset.stop_sequences);
+    setTopP(preset.topP);
+    setFrequencyPenalty(preset.frequency_penalty);
+    setPresencePenalty(preset.presence_penalty);
+    setStartText(preset.start_text);
+    setRestartText(preset.restart_text);
+    clearText();
+    insertText(preset.input);
+    setInput(preset.input);
+    setPreset(preset);
+  }
+
+  function clearText() {
+    if (monacoInstance === null) {
+      return;
+    }
+
+    const lineCount = monacoInstance.getModel()!.getLineCount();
+    const lastLineLength = monacoInstance.getModel()!.getLineMaxColumn(lineCount);
+    
+    monacoInstance.executeEdits('', [
+      {
+        range: {
+          startLineNumber: 0,
+          startColumn: 0,
+          endLineNumber: lineCount,
+          endColumn: lastLineLength,
+        },
+        text: null,
+      }
+    ])!
+  }
+
+  function insertText(text: string) {
     if (monacoInstance === null) {
       return;
     }
@@ -78,11 +158,11 @@ export default function Home() {
         text,
       }
     ])!
-  };
+  }
   
-  const editorMount: OnMount = (editorL: editor.IStandaloneCodeEditor) => {
-    setMonacoInstance(editorL);
-  };
+  function editorMount(ed: editor.IStandaloneCodeEditor): OnMount {
+    setMonacoInstance(ed);
+  }
 
   async function handleSubmit() {
     async function handle_stream(body) {
@@ -241,6 +321,14 @@ export default function Home() {
           <div className="pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
               <nav className="flex-1 space-y-1 px-2">
+
+                <DropDownSelector
+                  label="Presets"
+                  tooltip="Choose preset"
+                  choices={presets}
+                  selected={preset}
+                  setSelected={selectPreset}
+                />
 
                 <DropDownSelector
                   label="Model"
