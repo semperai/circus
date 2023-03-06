@@ -12,6 +12,20 @@ interface RangeSliderTextboxProps {
 }
 
 export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+	const sn = e.target.value;
+	let n = +sn;
+    if (Number.isInteger(props.step)) {
+	  n = Math.round(n);
+	}
+
+	props.setValue(clamp(n))
+  }
+
+  function clamp(n: number): number {
+	return Math.min(props.max, Math.max(n, props.min));
+  }
+
   return (
     <div className="relative text-sm">
       <Tooltip content={props.tooltip} style="light" placement="left">
@@ -26,7 +40,7 @@ export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
           min={props.min}
           max={props.max}
           value={props.value}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setValue(e.target.value)}
+          onChange={handleChange}
           />
         <input
           type="range"
@@ -35,7 +49,7 @@ export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
           max={props.max}
           step={props.step}
           value={props.value}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setValue(e.target.value)}
+          onChange={handleChange}
           />
       </div>
     </div>

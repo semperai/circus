@@ -26,7 +26,6 @@ export default function Home() {
   const [topP, setTopP] = useState(1.0);
   const [frequencyPenalty, setFrequencyPenalty] = useState(0.0);
   const [presencePenalty, setPresencePenalty] = useState(0.0);
-  const [bestOf, setBestOf] = useState(1);
   const [startText, setStartText] = useState('');
   const [restartText, setRestartText] = useState('');
 
@@ -47,14 +46,14 @@ export default function Home() {
           </div>
           <main className="flex-1 bg-white">
             <div className="py-6">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto max-w px-4 sm:px-6 lg:px-8">
                 <Editor
                    placeholder="Type an input…"
                    value={value}
                    onValueChange={(code) => setValue(code)}
                    highlight={(code) => /* highlight(code, languages.jsx!, 'jsx')*/ code}
                    padding={0}
-                   className="container__editor h-screen"
+                   className="container__editor h-screen overflow-y-auto"
                  />
 			  </div>
             </div>
@@ -63,9 +62,9 @@ export default function Home() {
 
 
         <div className="fixed inset-y-0 flex w-64 flex-col">
-          <div className={(sidebarOpen ? '' : 'hidden ') + 'flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white'}>
+          <div className={(sidebarOpen ? '' : 'hidden ') + 'pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white'}>
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-              <nav className="flex-1 space-y-1 bg-white px-2">
+              <nav className="flex-1 space-y-1 px-2">
 
                 <DropDownSelector
 				  label="Model"
@@ -124,21 +123,11 @@ export default function Home() {
                   value={presencePenalty}
                   setValue={setPresencePenalty}
                 />
-
-                <RangeSliderTextbox
-                  label="Best of"
-                  tooltip=""
-                  min={0}
-                  max={20}
-                  step={1}
-                  value={bestOf}
-                  setValue={setBestOf}
-                />
               </nav>
             </div>
 		  </div>
 
-          <div className="flex flex-shrink-0 border-t border-gray-200 p-4 bg-white">
+          <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white">
             <a href="#" className="group block w-full flex-shrink-0">
               <div className="flex items-center">
                 <div>
