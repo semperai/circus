@@ -328,7 +328,8 @@ export default function Home() {
                     renderLineHighlight: 'none',
                     lineNumbers: 'off',
                     lineDecorationsWidth: 0,
-                    lineNumbersMinChars: 0
+                    lineNumbersMinChars: 0,
+                    minimap: {enabled: false},
                   }}
                   onChange={editorOnChange}
                   />
