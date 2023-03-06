@@ -19,6 +19,7 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid'
 
 import GPT3Tokenizer from 'gpt3-tokenizer';
 import { Configuration, OpenAIApi } from "openai";
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const gpt3Tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
 const codexTokenizer = new GPT3Tokenizer({ type: 'codex' });
@@ -46,6 +47,7 @@ export default function Home() {
 
   const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY || '');
   const [basePath, setBasePath] = useState(process.env.NEXT_PUBLIC_OPENAI_BASE_URI || 'https://api.openai.com/v1');
+  const [streamResponse, setStreamResponse] = useState(false);
 
   const [model, setModel] = useState(models[0])
   const [temperature, setTemperature] = useState(0.8);
@@ -82,39 +84,70 @@ export default function Home() {
     setMonacoInstance(editorL);
   };
 
-
   async function handleSubmit() {
-    async function handle() {
+    async function handle_stream(body) {
+      body['stream'] = true;
+
+      return new Promise((resolve, reject) => {
+        fetchEventSource(`${basePath}/completions`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'text/event-stream',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(body),
+          onopen(res) {
+            if (res.ok && res.status === 200) {
+              return;
+            }
+
+            if (
+              res.status >= 400 &&
+              res.status < 500 &&
+              res.status !== 429
+            ) {
+              throw new Error("client side error "+ JSON.stringify(res));
+            }
+          },
+          onmessage(evt) {
+            console.debug('onmessage', evt);
+            const data = evt.data;
+            if (data === '[DONE]') {
+              return;
+            }
+
+            const j = JSON.parse(evt.data);
+            try {
+              const resp: string = j.choices[0].text!;
+              insertText(resp);
+              setInput(input + resp);
+            } catch (e) {
+              console.error('onmessage_err', e);
+            }
+          },
+          onclose() {
+            console.debug('sse_close', 'connection closed by server');
+            resolve();
+          },
+          onerror(err) {
+            console.warn('sse_onerror', 'an error from server', err);
+            reject();
+          },
+        });
+      });
+    }
+
+    async function handle_sync(body) {
       const configuration = new Configuration({
         apiKey,
         basePath,
       });
       const openai = new OpenAIApi(configuration);
 
-      let completion;
-      const req = {
-        model: model.id,
-        prompt: input,
-        temperature,
-        max_tokens: maxTokens,
-        top_p: topP,
-        presence_penalty: presencePenalty,
-        frequency_penalty: frequencyPenalty,
-      };
-      // if empty array is included will barf
-      if (stopSequences.length > 0) {
-        req['stop'] = stopSequences.map((o) => o.id);
-      }
-      console.log(req);
-      try {
-        completion = await openai.createCompletion(req);
-      } catch (e) {
-        setErrorPopupContent(JSON.stringify(e));
-        setErrorPopupOpen(true);
-        return;
-      }
+      const completion= await openai.createCompletion(body);
 
-      console.log(completion);
+      console.debug('sync_completion', completion);
       try {
         const resp: string = completion.data.choices[0].text!;
         insertText(resp);
@@ -126,11 +159,34 @@ export default function Home() {
 
     setLoadingCompletion(true);
     try {
-      await handle();
-    } catch(e) {}
+      const body = {
+        model: model.id,
+        prompt: input,
+        temperature,
+        max_tokens: maxTokens,
+        top_p: topP,
+        presence_penalty: presencePenalty,
+        frequency_penalty: frequencyPenalty,
+      };
+      // if empty array is included will barf
+      if (stopSequences.length > 0) {
+        body['stop'] = stopSequences.map((o) => o.id);
+      }
+      console.debug('request_body', body);
+
+      if (streamResponse) {
+        await handle_stream(body);
+      } else {
+        await handle_sync(body);
+      }
+    } catch(e) {
+      setErrorPopupContent(JSON.stringify(e));
+      setErrorPopupOpen(true);
+    }
     setLoadingCompletion(false);
   }
 
+  // used to get current input token count (bpe.length)
   const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
 
   return (
@@ -266,7 +322,14 @@ export default function Home() {
                     value={basePath}
                     setValue={setBasePath}
                   />
-                </div>
+
+                  <Checkbox
+                    label="Stream Response"
+                    tooltip="Use streaming responses as data comes in"
+                    value={streamResponse}
+                    setValue={setStreamResponse}
+                    />
+                  </div>
               </nav>
             </div>
           </div>

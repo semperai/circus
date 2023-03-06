@@ -37,7 +37,7 @@ export default function TagInput(props: TagInputProps) {
           delimiters={Object.values(DelimiterKeyCodes)}
           placeholder="Press tab, max 4"
           autofocus={false}
-          autocomplete="off"
+          autocomplete={false}
           allowDragDrop={false}
           handleDelete={handleDelete}
           handleAddition={handleAddition}
