@@ -77,7 +77,7 @@ export default function Home() {
   };
   
   const editorMount: OnMount = (editorL: editor.IStandaloneCodeEditor) => {
-      setMonacoInstance(editorL);
+    setMonacoInstance(editorL);
   };
 
 
@@ -171,8 +171,8 @@ export default function Home() {
           </footer>
         </div>
 
-        <div className="fixed inset-y-0 flex w-64 flex-col">
-          <div className={(sidebarOpen ? '' : 'hidden ') + 'pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white'}>
+        <div className={(sidebarOpen ? '' : 'hidden ') + 'fixed inset-y-0 flex w-64 flex-col'}>
+          <div className="pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
               <nav className="flex-1 space-y-1 px-2">
 
