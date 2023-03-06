@@ -523,13 +523,11 @@ export default class Editor extends React.Component<Props, State> {
       onFocus,
       onBlur,
       onKeyUp,
-      /* eslint-disable @typescript-eslint/no-unused-vars */
       onKeyDown,
       onValueChange,
       tabSize,
       insertSpaces,
       ignoreTabKey,
-      /* eslint-enable @typescript-eslint/no-unused-vars */
       preClassName,
       ...rest
     } = this.props;
