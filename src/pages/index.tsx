@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Tooltip, RangeSlider } from 'flowbite-react';
-import Image from 'next/image'
+import { Tooltip } from 'flowbite-react';
 import styles from '@/styles/Home.module.css'
 
 import {
@@ -11,8 +10,8 @@ import {
   TagInput,
   Textbox,
 } from '../components';
-import Editor, { Monaco, OnMount } from "@monaco-editor/react";
-import { editor, languages } from 'monaco-editor';
+import Editor from "@monaco-editor/react";
+import { editor } from 'monaco-editor';
 
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
@@ -24,12 +23,25 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import models from '../models.json';
 import presets from '../presets.json';
 
-const tokenizers = {
+interface Preset {
+  id: string;
+  name: string;
+  model: string;
+  temperature: number;
+  max_tokens: number;
+  stop_sequences: string[];
+  top_p: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  start_text: string;
+  restart_text: string;
+  input: string;
+};
+
+const tokenizers: { [key: string]: any } = {
   'gpt3':  new GPT3Tokenizer({ type: 'gpt3' }),
   'codex': new GPT3Tokenizer({ type: 'codex' }),
 };
-
-
 
 export default function Home() {
   const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
@@ -41,7 +53,7 @@ export default function Home() {
   const [errorPopupContent, setErrorPopupContent] = useState('')
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
 
-  const [preset, setPreset] = useState(presets[0]);
+  const [preset, setPreset] = useState(presets[0] as Preset);
 
   const [input, setInput] = useState('');
 
@@ -52,14 +64,14 @@ export default function Home() {
   const [model, setModel] = useState(models[0])
   const [temperature, setTemperature] = useState(0.8);
   const [maxTokens, setMaxTokens] = useState(256);
-  const [stopSequences, setStopSequences] = useState([]);
+  const [stopSequences, setStopSequences] = useState([] as string[]);
   const [topP, setTopP] = useState(1.0);
   const [frequencyPenalty, setFrequencyPenalty] = useState(0.0);
   const [presencePenalty, setPresencePenalty] = useState(0.0);
   const [startText, setStartText] = useState('');
   const [restartText, setRestartText] = useState('');
 
-  function selectPreset(preset) {
+  function selectPreset(preset: Preset) {
     const conf = window.confirm('This will reset everything, are you sure?');
     if (! conf) {
       return;
@@ -71,10 +83,11 @@ export default function Home() {
         break;
       }
     }
+
     setTemperature(preset.temperature);
     setMaxTokens(preset.max_tokens);
     setStopSequences(preset.stop_sequences);
-    setTopP(preset.topP);
+    setTopP(preset.top_p);
     setFrequencyPenalty(preset.frequency_penalty);
     setPresencePenalty(preset.presence_penalty);
     setStartText(preset.start_text);
@@ -127,15 +140,13 @@ export default function Home() {
     ])!
   }
   
-  function editorMount(ed: editor.IStandaloneCodeEditor): OnMount {
+  function editorMount(ed: editor.IStandaloneCodeEditor) {
     setMonacoInstance(ed);
   }
 
   async function handleSubmit() {
-    async function handle_stream(body) {
-      body['stream'] = true;
-
-      return new Promise((resolve, reject) => {
+    async function handle_stream(body: any) {
+      return new Promise<void>((resolve, reject) => {
         fetchEventSource(`${basePath}/completions`, {
           method: 'POST',
           headers: {
@@ -144,7 +155,7 @@ export default function Home() {
             'Authorization': `Bearer ${apiKey}`,
           },
           body: JSON.stringify(body),
-          onopen(res) {
+          async onopen(res) {
             if (res.ok && res.status === 200) {
               return;
             }
@@ -185,7 +196,7 @@ export default function Home() {
       });
     }
 
-    async function handle_sync(body) {
+    async function handle_sync(body: any) {
       const configuration = new Configuration({
         apiKey,
         basePath,
@@ -214,11 +225,11 @@ export default function Home() {
         top_p: topP,
         presence_penalty: presencePenalty,
         frequency_penalty: frequencyPenalty,
+        stream: streamResponse,
+        // if empty array is included will barf
+        stop: stopSequences.length > 0 ? stopSequences : undefined,
       };
-      // if empty array is included will barf
-      if (stopSequences.length > 0) {
-        body['stop'] = stopSequences.map((o) => o.id);
-      }
+
       console.debug('request_body', body);
 
       if (streamResponse) {
@@ -327,6 +338,7 @@ export default function Home() {
 
                 <TagInput
                   label="Stop sequences"
+                  tooltip="Stop completion if one of these sequences is reached"
                   tags={stopSequences}
                   setTags={setStopSequences}
                   />
@@ -396,9 +408,11 @@ export default function Home() {
           <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white">
             <a href="#" className="group block w-full flex-shrink-0">
               <div className="flex items-stretch justify-between">
-                <div className="ml-3 bg-slate-200 p-1 pl-4 pr-4 rounded-md">
-                  {encoded.bpe.length}
-                </div>
+                <Tooltip content="Total input tokens" style="light" placement="top">
+                  <div className="ml-3 bg-slate-200 p-1 pl-4 pr-4 rounded-md">
+                    {encoded.bpe.length}
+                  </div>
+                </Tooltip>
                 <div className="ml-3">
                   <button
                     type="button"

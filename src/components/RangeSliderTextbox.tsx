@@ -1,17 +1,16 @@
 import { Tooltip } from 'flowbite-react';
 
-interface RangeSliderTextboxProps {
+interface Props {
   label: string;
   tooltip: string;
   min: number;
   max: number;
   step: number;
   value: number;
-  // onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setValue: any;
+  setValue: (_: number) => any;
 }
 
-export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
+export default function RangeSliderTextbox(props: Props) {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
 	const sn = e.target.value;
 	let n = +sn;

@@ -3,20 +3,21 @@ import { Listbox, Transition } from '@headlessui/react'
 import { Tooltip } from 'flowbite-react';
 import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
+// T must contain these properties
 interface SelectionItem {
   id: string;
   name: string;
 }
 
-interface DropDownSelectorProps {
+interface Props<T> {
   label: string;
   tooltip: string;
-  choices: SelectionItem[];
-  selected: SelectionItem;
-  setSelected: any;
+  choices: T[];
+  selected: T;
+  setSelected: (_: T) => any;
 }
 
-export default function DropDownSelector(props: DropDownSelectorProps) {
+export default function DropDownSelector<T extends SelectionItem>(props: Props<T>) {
   return (
     <div>
       <Tooltip content={props.tooltip} style="light" placement="top">

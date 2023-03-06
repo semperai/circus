@@ -1,13 +1,13 @@
 import { Tooltip } from 'flowbite-react';
 
-interface CheckboxProps {
+interface Props {
   label: string;
   tooltip: string;
   value: boolean;
-  setValue: any;
+  setValue: (_: boolean) => any;
 }
 
-export default function Checkbox(props: CheckboxProps) {
+export default function Checkbox(props: Props) {
   return (
     <div className="relative text-sm">
       <Tooltip content={props.tooltip} style="light" placement="top">

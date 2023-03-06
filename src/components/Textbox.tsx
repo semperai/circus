@@ -1,13 +1,13 @@
 import { Tooltip } from 'flowbite-react';
 
-interface TextboxProps {
+interface Props {
   label: string;
   tooltip: string;
   value: string;
-  setValue: any;
+  setValue: (_: string) => any;
 }
 
-export default function Textbox(props: TextboxProps) {
+export default function Textbox(props: Props) {
   return (
     <div className="relative text-sm">
       <Tooltip content={props.tooltip} style="light" placement="top">

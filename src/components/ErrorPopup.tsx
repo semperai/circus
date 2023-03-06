@@ -2,14 +2,14 @@ import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
-interface ErrorPopupProps {
+interface Props {
   title: string;
   content: string;
   open: boolean;
-  setOpen: any;
+  setOpen: (_: boolean) => any;
 }
 
-export default function ErrorPopup(props: ErrorPopupProps) {
+export default function ErrorPopup(props: Props) {
   return (
     <Transition.Root show={props.open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={props.setOpen}>

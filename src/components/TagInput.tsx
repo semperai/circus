@@ -7,22 +7,30 @@ const DelimiterKeyCodes = {
   tab: 9,
 };
 
-interface TagInputProps {
+interface Props {
+  label: string;
+  tooltip: string;
   tags: string[];
-  setTags: any;
+  setTags: (_: string[]) => any;
 }
 
-export default function TagInput(props: TagInputProps) {
-  const handleDelete = (i) => {
-    props.setTags(props.tags.filter((tag, index) => index !== i));
-  };
+interface Tag {
+  id: string;
+  text: string;
+}
 
-  const handleAddition = (tag) => {
+export default function TagInput(props: Props) {
+  function handleDelete(i: number) {
+    props.setTags(props.tags.filter((tag, index) => index !== i));
+  }
+
+  function handleAddition(tag: Tag) {
     if (props.tags.length >= 4) {
       return;
     }
-    props.setTags([...props.tags, tag]);
-  };
+
+    props.setTags([...props.tags, tag.id]);
+  }
 
   return (
     <div className="relative text-sm">
@@ -33,7 +41,7 @@ export default function TagInput(props: TagInputProps) {
       </Tooltip>
       <div className="mt-2 mb-6">
         <ReactTags
-          tags={props.tags}
+          tags={props.tags.map((t) => ({ id: t, text: t }))}
           delimiters={Object.values(DelimiterKeyCodes)}
           placeholder="Press tab, max 4"
           autofocus={false}

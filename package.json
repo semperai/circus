@@ -28,6 +28,7 @@
     "@heroicons/react": "^2.0.16",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@monaco-editor/react": "^4.4.6",
+    "@types/react-tag-input": "^6.6.1",
     "flowbite": "^1.6.3",
     "flowbite-react": "^0.4.1",
     "monaco-editor": "^0.36.1",

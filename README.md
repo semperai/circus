@@ -34,6 +34,10 @@ yarn dev
 yarn build
 ```
 
+## Customization
+
+Presets and models may be specified in the `./src/models.json` and `./src/presets.json` files.
+
 ## Similar Projects
 
 * [https://github.com/oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
