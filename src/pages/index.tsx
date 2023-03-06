@@ -200,6 +200,7 @@ export default function Home() {
             if (data === '[DONE]') {
               // hack to keep input and monaco in sync
               if (monacoInstance !== null) {
+                insertText(restartText);
                 setInput(monacoInstance.getValue());
               }
               return;
@@ -238,14 +239,16 @@ export default function Home() {
       console.debug('sync_completion', completion);
       try {
         const resp: string = completion.data.choices[0].text!;
-        insertText(resp);
-        setInput(input + resp);
+        insertText(resp + restartText);
+        setInput(input + resp + restartText);
       } catch (e) {
         console.error(e);
       }
     }
 
     setLoadingCompletion(true);
+    insertText(startText);
+    setInput(input + startText);
     try {
       const body = {
         model: model.id,
@@ -301,7 +304,7 @@ export default function Home() {
             <div className="flex-col">
             </div>
             <div className={(showCurl ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-600 text-white'}>
-              <code className="text-white">
+              <code className="text-white text-sm">
                 curl {basePath}/completions
                 -H 'Content-Type: application/json'
                 -H 'Authorization: Bearer {apiKey}'
@@ -323,6 +326,9 @@ export default function Home() {
                     wordWrap: 'on',
                     quickSuggestions: false,
                     renderLineHighlight: 'none',
+                    lineNumbers: 'off',
+                    lineDecorationsWidth: 0,
+                    lineNumbersMinChars: 0
                   }}
                   onChange={editorOnChange}
                   />
@@ -430,6 +436,20 @@ export default function Home() {
                   step={0.01}
                   value={presencePenalty}
                   setValue={setPresencePenalty}
+                />
+
+                <Textbox
+                  label="Start Text"
+                  tooltip="Text to append after your input"
+                  value={startText}
+                  setValue={setStartText}
+                />
+
+                <Textbox
+                  label="Restart Text"
+                  tooltip="Text to append after models response"
+                  value={restartText}
+                  setValue={setRestartText}
                 />
 
                 <Checkbox
