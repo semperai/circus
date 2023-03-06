@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Tooltip } from 'flowbite-react';
-import styles from '@/styles/Home.module.css'
 
 import {
   Checkbox,
@@ -278,6 +277,7 @@ export default function Home() {
                   options={{
                     wordWrap: 'on',
                     quickSuggestions: false,
+                    renderLineHighlight: 'none',
                   }}
                   onChange={(v: string|undefined) => { if(v) setInput(v) }}
                   />

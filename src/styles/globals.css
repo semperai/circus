@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* disable blue square above cursor */
+.monaco-editor textarea:focus {
+  box-shadow: none !important;
+}
