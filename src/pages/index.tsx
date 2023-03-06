@@ -290,7 +290,7 @@ export default function Home() {
         />
       <div>
         <div className="flex flex-1 flex-col lg:pl-64">
-          <div className="sticky top-0 z-10 bg-gray-100 pl-1 pt-1 sm:pl-3 sm:pt-3 lg:hidden">
+          <div className="sticky top-0 z-10 bg-gray-100 pl-1 pt-1 sm:pl-3 sm:pt-3 lg:hidden flex items-stretch justify-between">
             <button
               type="button"
               className="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -299,12 +299,31 @@ export default function Home() {
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </button>
-          </div>
-          <main className="flex-1 bg-white">
-            <div className="flex-col">
+
+
+            <div className="flex items-stretch justify-between mt-1 mr-2">
+              <Tooltip content="Total input tokens" style="light" placement="top">
+                <div className="ml-3 bg-slate-200 p-1 pl-4 pr-4 rounded-md">
+                  {encoded.bpe.length}
+                </div>
+              </Tooltip>
+              <div className="ml-3">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-25"
+                  disabled={loadingCompletion || apiKey === '' || basePath === ''}
+                  onClick={handleSubmit}
+                >
+                  Submit
+                  <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
             </div>
-            <div className={(showCurl ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-600 text-white'}>
-              <code className="text-white text-sm">
+          </div>
+
+          <main className="flex-1 bg-white">
+            <div className={(showCurl ? '' : 'hidden ') + 'mx-auto p-4 pt-2 pb-2 bg-slate-600 text-white'}>
+              <code className="text-sm break-all">
                 { /* eslint-disable-next-line react/no-unescaped-entities */ }
                 curl {basePath}/completions -H 'Content-Type: application/json' -H 'Authorization: Bearer {apiKey}' -d '{JSON.stringify({model: model.id, prompt: input, max_tokens: maxTokens, temperature, top_p: topP, presence_penalty: presencePenalty, frequency_penalty: frequencyPenalty, stream: streamResponse, stop: stopSequences.length > 0 ? stopSequences : undefined})}'
               </code>
@@ -313,7 +332,7 @@ export default function Home() {
               { /* eslint-disable-next-line react/no-children-prop */ }
               <MarkdownRender children={input} />
             </div>
-            <div className="py-6">
+            <div className="lg:py-6">
               <div className="mx-auto max-w max-h-screen">
                 <Editor
                   onMount={editorMount}
@@ -483,7 +502,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white">
+          <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white hidden lg:block">
             <a href="#" className="group block w-full flex-shrink-0">
               <div className="flex items-stretch justify-between">
                 <Tooltip content="Total input tokens" style="light" placement="top">
