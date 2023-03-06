@@ -163,8 +163,16 @@ export default function Home() {
               </div>
             </div>
           </main>
+          <footer className="bg-white">
+            <div className="mx-auto max-w-7xl px-6 md:flex md:items-center md:justify-between lg:px-8">
+              <div className="md:order-1 md:mt-0">
+                <p className="text-center text-xs leading-5 text-gray-500">
+                  <a href="https://github.com/semperai/circus">open source</a>
+                </p>
+              </div>
+            </div>
+          </footer>
         </div>
-
 
         <div className="fixed inset-y-0 flex w-64 flex-col">
           <div className={(sidebarOpen ? '' : 'hidden ') + 'pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white'}>
