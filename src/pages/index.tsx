@@ -8,6 +8,7 @@ import {
   DropDownSelector,
   ErrorPopup,
   RangeSliderTextbox,
+  TagInput,
   Textbox,
 } from '../components';
 import Editor, { Monaco, OnMount } from "@monaco-editor/react";
@@ -49,6 +50,7 @@ export default function Home() {
   const [model, setModel] = useState(models[0])
   const [temperature, setTemperature] = useState(0.8);
   const [maxTokens, setMaxTokens] = useState(256);
+  const [stopSequences, setStopSequences] = useState([]);
   const [topP, setTopP] = useState(1.0);
   const [frequencyPenalty, setFrequencyPenalty] = useState(0.0);
   const [presencePenalty, setPresencePenalty] = useState(0.0);
@@ -99,6 +101,10 @@ export default function Home() {
         presence_penalty: presencePenalty,
         frequency_penalty: frequencyPenalty,
       };
+      // if empty array is included will barf
+      if (stopSequences.length > 0) {
+        req['stop'] = stopSequences.map((o) => o.id);
+      }
       console.log(req);
       try {
         completion = await openai.createCompletion(req);
@@ -203,6 +209,12 @@ export default function Home() {
                   value={maxTokens}
                   setValue={setMaxTokens}
                 />
+
+                <TagInput
+                  label="Stop sequences"
+                  tags={stopSequences}
+                  setTags={setStopSequences}
+                  />
 
                 <RangeSliderTextbox
                   label="Top P"

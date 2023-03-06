@@ -33,3 +33,7 @@ yarn dev
 ```
 yarn build
 ```
+
+## Similar Projects
+
+* [https://github.com/oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)

@@ -18,7 +18,7 @@ export default function Textbox(props: TextboxProps) {
       <div className="mt-2 mb-6">
         <input
           type="text"
-          className="transparent h-1.5 w-full"
+          className="transparent text-sm"
           value={props.value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setValue(e.target.value.trim()) }
           />
