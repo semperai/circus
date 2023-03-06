@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tooltip } from 'flowbite-react';
 
 import {
@@ -6,6 +6,7 @@ import {
   DropDownSelector,
   ErrorPopup,
   RangeSliderTextbox,
+  MarkdownRender,
   TagInput,
   Textbox,
 } from '../components';
@@ -46,6 +47,8 @@ export default function Home() {
   const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [showMarkdown, setShowMarkdown] = useState(false)
+  const [showCurl, setShowCurl] = useState(false)
   const [advanced, setAdvanced] = useState(! process.env.NEXT_PUBLIC_OPENAI_API_KEY || ! process.env.NEXT_PUBLIC_OPENAI_BASE_URI)
   const [loadingCompletion, setLoadingCompletion] = useState(false)
 
@@ -69,6 +72,24 @@ export default function Home() {
   const [presencePenalty, setPresencePenalty] = useState(0.0);
   const [startText, setStartText] = useState('');
   const [restartText, setRestartText] = useState('');
+
+  useEffect(() => {
+    function keyHandler() {
+      // hack to keep input and monaco in sync
+      setTimeout(() => {
+        if (monacoInstance !== null) {
+          setInput(monacoInstance.getValue());
+        }
+      }, 0);
+    }
+
+    document.addEventListener("keydown", keyHandler, true);
+
+    return () => {
+      document.removeEventListener("keydown", keyHandler, true);
+    };
+  }, [monacoInstance]);
+
 
   function selectPreset(preset: Preset) {
     const conf = window.confirm('This will reset everything, are you sure?');
@@ -95,6 +116,12 @@ export default function Home() {
     insertText(preset.input);
     setInput(preset.input);
     setPreset(preset);
+  }
+
+  function editorOnChange(v: string|undefined) {
+    if(v) {
+      setInput(v);
+    }
   }
 
   function clearText() {
@@ -171,6 +198,10 @@ export default function Home() {
             console.debug('onmessage', evt);
             const data = evt.data;
             if (data === '[DONE]') {
+              // hack to keep input and monaco in sync
+              if (monacoInstance !== null) {
+                setInput(monacoInstance.getValue());
+              }
               return;
             }
 
@@ -267,6 +298,20 @@ export default function Home() {
             </button>
           </div>
           <main className="flex-1 bg-white">
+            <div className="flex-col">
+            </div>
+            <div className={(showCurl ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-600 text-white'}>
+              <code className="text-white">
+                curl {basePath}/completions
+                -H 'Content-Type: application/json'
+                -H 'Authorization: Bearer {apiKey}'
+                -d '{JSON.stringify({model: model.id, prompt: input, max_tokens: maxTokens, temperature, top_p: topP, presence_penalty: presencePenalty, frequency_penalty: frequencyPenalty, stream: streamResponse, stop: stopSequences.length > 0 ? stopSequences : undefined})}'
+              </code>
+            </div>
+            <div className={(showMarkdown ? '' : 'hidden ') + 'mx-auto pl-10 pr-10 pt-2 pb-2 bg-slate-100'}>
+              { /* eslint-disable-next-line react/no-children-prop */ }
+              <MarkdownRender children={input} />
+            </div>
             <div className="py-6">
               <div className="mx-auto max-w max-h-screen">
                 <Editor
@@ -279,7 +324,7 @@ export default function Home() {
                     quickSuggestions: false,
                     renderLineHighlight: 'none',
                   }}
-                  onChange={(v: string|undefined) => { if(v) setInput(v) }}
+                  onChange={editorOnChange}
                   />
               </div>
             </div>
@@ -299,6 +344,20 @@ export default function Home() {
           <div className="pt-10 flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
               <nav className="flex-1 space-y-1 px-2">
+
+                <Checkbox
+                  label="Show Markdown Panel"
+                  tooltip="Show api and base uri settings"
+                  value={showMarkdown}
+                  setValue={setShowMarkdown}
+                />
+
+                <Checkbox
+                  label="Show cURL"
+                  tooltip="Show cURL command"
+                  value={showCurl}
+                  setValue={setShowCurl}
+                />
 
                 <DropDownSelector
                   label="Presets"
@@ -328,7 +387,7 @@ export default function Home() {
 
                 <RangeSliderTextbox
                   label="Max Tokens"
-                  tooltip="Maximum amount of tokens"
+                  tooltip="Maximum amount of tokens. Includes input tokens."
                   min={0}
                   max={model.max_tokens}
                   step={1}
@@ -338,7 +397,7 @@ export default function Home() {
 
                 <TagInput
                   label="Stop sequences"
-                  tooltip="Stop completion if one of these sequences is reached"
+                  tooltip="Stop completion if one of these sequences is reached. Up to 4 allowed."
                   tags={stopSequences}
                   setTags={setStopSequences}
                   />
@@ -355,7 +414,7 @@ export default function Home() {
 
                 <RangeSliderTextbox
                   label="Frequency Penalty"
-                  tooltip=""
+                  tooltip="How much to penalize tokens based on their frequency in the input so far."
                   min={0.0}
                   max={2.0}
                   step={0.01}
@@ -365,7 +424,7 @@ export default function Home() {
 
                 <RangeSliderTextbox
                   label="Presence Penalty"
-                  tooltip=""
+                  tooltip="How much to penalize tokens if they have already been in the input so far."
                   min={0.0}
                   max={2.0}
                   step={0.01}
@@ -375,14 +434,14 @@ export default function Home() {
 
                 <Checkbox
                   label="Advanced Settings"
-                  tooltip="Show api and base uri settings"
+                  tooltip="Show connection details and other tweaks."
                   value={advanced}
                   setValue={setAdvanced}
                   />
                 <div className={(advanced) ? '' : 'hidden'}>
                   <Textbox
                     label="API Key"
-                    tooltip=""
+                    tooltip="You can find this in the user settings page."
                     value={apiKey}
                     setValue={setApiKey}
                   />
@@ -399,8 +458,8 @@ export default function Home() {
                     tooltip="Use streaming responses as data comes in"
                     value={streamResponse}
                     setValue={setStreamResponse}
-                    />
-                  </div>
+                  />
+                </div>
               </nav>
             </div>
           </div>
