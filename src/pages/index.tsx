@@ -35,8 +35,8 @@ export default function Home() {
   const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [advanced, setAdvanced] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY === '' || process.env.NEXT_PUBLIC_OPENAI_BASE_URI === '')
-  const [submitDisabled, setSubmitDisabled] = useState(false)
+  const [advanced, setAdvanced] = useState(! process.env.NEXT_PUBLIC_OPENAI_API_KEY || ! process.env.NEXT_PUBLIC_OPENAI_BASE_URI)
+  const [loadingCompletion, setLoadingCompletion] = useState(false)
 
   const [errorPopupContent, setErrorPopupContent] = useState('')
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
@@ -118,11 +118,11 @@ export default function Home() {
       }
     }
 
-    setSubmitDisabled(true);
+    setLoadingCompletion(true);
     try {
       await handle();
     } catch(e) {}
-    setSubmitDisabled(false);
+    setLoadingCompletion(false);
   }
 
   const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
@@ -269,7 +269,7 @@ export default function Home() {
                   <button
                     type="button"
                     className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-25"
-                    disabled={submitDisabled}
+                    disabled={loadingCompletion || apiKey === '' || basePath === ''}
                     onClick={handleSubmit}
                   >
                     Submit
