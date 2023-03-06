@@ -31,6 +31,7 @@ const models = [
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [advanced, setAdvanced] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY === '' || process.env.NEXT_PUBLIC_OPENAI_BASE_URI === '')
+  const [submitDisabled, setSubmitDisabled] = useState(false)
 
   const [errorPopupContent, setErrorPopupContent] = useState('')
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
@@ -50,34 +51,42 @@ export default function Home() {
   const [restartText, setRestartText] = useState('');
 
   async function handleSubmit() {
-    const configuration = new Configuration({
-      apiKey,
-      basePath,
-    });
-    const openai = new OpenAIApi(configuration);
+    async function handle() {
+      const configuration = new Configuration({
+        apiKey,
+        basePath,
+      });
+      const openai = new OpenAIApi(configuration);
 
-	let completion;
-    const req = {
-      model: model.id,
-      prompt: input,
-      temperature,
-	  max_tokens: maxTokens,
-      top_p: topP,
-      presence_penalty: presencePenalty,
-      frequency_penalty: frequencyPenalty,
-    };
-    console.log(req);
-	try {
-      completion = await openai.createCompletion(req);
-	} catch (e) {
-      setErrorPopupContent(JSON.stringify(e));
-      setErrorPopupOpen(true);
-	  return;
-	}
+	  let completion;
+      const req = {
+        model: model.id,
+        prompt: input,
+        temperature,
+	    max_tokens: maxTokens,
+        top_p: topP,
+        presence_penalty: presencePenalty,
+        frequency_penalty: frequencyPenalty,
+      };
+      console.log(req);
+	  try {
+        completion = await openai.createCompletion(req);
+	  } catch (e) {
+        setErrorPopupContent(JSON.stringify(e));
+        setErrorPopupOpen(true);
+	    return;
+	  }
 
-	console.log(completion);
-    const resp = completion.data.choices[0].text;
-    setInput(input + resp);
+	  console.log(completion);
+      const resp = completion.data.choices[0].text;
+      setInput(input + resp);
+    }
+
+    setSubmitDisabled(true);
+    try {
+      await handle();
+    } catch(e) {}
+    setSubmitDisabled(false);
   }
 
   const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
@@ -217,7 +226,8 @@ export default function Home() {
                 <div className="ml-3">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-25"
+                    disabled={submitDisabled}
 					onClick={handleSubmit}
                   >
                     Submit
