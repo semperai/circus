@@ -217,6 +217,10 @@ export default function Home() {
                   height="90vh"
                   defaultLanguage="plaintext"
                   defaultValue={input}
+                  options={{
+                    wordWrap: 'on',
+                    quickSuggestions: false,
+                  }}
                   onChange={(v: string|undefined) => { if(v) setInput(v) }}
                   />
               </div>
