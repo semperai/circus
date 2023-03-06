@@ -17,7 +17,7 @@ const models = [
 ]
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const [value, setValue] = useState('');
   const [selectedModel, setSelectedModel] = useState(models[0])
@@ -39,17 +39,17 @@ export default function Home() {
             <button
               type="button"
               className="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-              onClick={() => setSidebarOpen(true)}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
-          <main className="flex-1">
+          <main className="flex-1 bg-white">
             <div className="py-6">
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <Editor
-                   placeholder="Type some code…"
+                   placeholder="Type an input…"
                    value={value}
                    onValueChange={(code) => setValue(code)}
                    highlight={(code) => /* highlight(code, languages.jsx!, 'jsx')*/ code}
@@ -62,10 +62,10 @@ export default function Home() {
         </div>
 
 
-        <div className="lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-          <div className="flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
+        <div className="fixed inset-y-0 flex w-64 flex-col">
+          <div className={(sidebarOpen ? '' : 'hidden ') + 'flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white'}>
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-              <nav className="mt-5 flex-1 space-y-1 bg-white px-2">
+              <nav className="flex-1 space-y-1 bg-white px-2">
 
                 <DropDownSelector
 				  label="Model"
@@ -136,25 +136,25 @@ export default function Home() {
                 />
               </nav>
             </div>
+		  </div>
 
-            <div className="flex flex-shrink-0 border-t border-gray-200 p-4">
-              <a href="#" className="group block w-full flex-shrink-0">
-                <div className="flex items-center">
-                  <div>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      Submit
-                      <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div className="ml-3">
-					{/*TODO show token count here*/}
-                  </div>
+          <div className="flex flex-shrink-0 border-t border-gray-200 p-4 bg-white">
+            <a href="#" className="group block w-full flex-shrink-0">
+              <div className="flex items-center">
+                <div>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  >
+                    Submit
+                    <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
+                  </button>
                 </div>
-              </a>
-            </div>
+                <div className="ml-3">
+		  		{/*TODO show token count here*/}
+                </div>
+              </div>
+            </a>
           </div>
         </div>
       </div>

@@ -24,7 +24,7 @@ export default function DropDownSelector(props: DropDownSelectorProps) {
           {props.label}
         </label>
       </Tooltip>
-      <div className="mt-2">
+      <div className="mt-2 mb-6">
         <Listbox value={props.selected} onChange={props.setSelected}>
           {({ open }) => (
             <>

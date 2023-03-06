@@ -13,15 +13,16 @@ interface RangeSliderTextboxProps {
 
 export default function RangeSliderTextbox(props: RangeSliderTextboxProps) {
   return (
-    <div>
+    <div className="relative text-sm">
       <Tooltip content={props.tooltip} style="light" placement="left">
         <label className="block text-sm font-medium leading-6 text-gray-900">
           {props.label}
         </label>
       </Tooltip>
-      <div className="mt-2">
+      <div className="mt-2 mb-6">
         <input
           type="number"
+		  className="absolute top-0 right-0 text-sm p-0 pl-1 mt-1 w-14 border-transparent outline-transparent hover:border-slate-200 focus:border-slate-200 text-right"
           min={props.min}
           max={props.max}
           value={props.value}
