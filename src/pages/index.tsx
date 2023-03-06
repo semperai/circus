@@ -168,6 +168,10 @@ export default function Home() {
   
   function editorMount(ed: editor.IStandaloneCodeEditor) {
     setMonacoInstance(ed);
+    ed.setPosition({lineNumber: 1, column: 6})
+    window.requestAnimationFrame(() => {
+      ed.focus()
+    })
   }
 
   async function handleSubmit() {
