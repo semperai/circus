@@ -3,7 +3,7 @@ import { Tooltip } from 'flowbite-react';
 interface CheckboxProps {
   label: string;
   tooltip: string;
-  value: number;
+  value: boolean;
   setValue: any;
 }
 

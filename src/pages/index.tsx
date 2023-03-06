@@ -43,7 +43,7 @@ export default function Home() {
 
   const [input, setInput] = useState('');
 
-  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY || '');
   const [basePath, setBasePath] = useState(process.env.NEXT_PUBLIC_OPENAI_BASE_URI || 'https://api.openai.com/v1');
 
   const [model, setModel] = useState(models[0])
@@ -56,19 +56,12 @@ export default function Home() {
   const [restartText, setRestartText] = useState('');
 
   const insertText = (text: string) => {
-    if (! monacoInstance) {
+    if (monacoInstance === null) {
       return;
     }
 
-    const lineCount = monacoInstance.getModel().getLineCount();
-    const lastLineLength = monacoInstance.getModel().getLineMaxColumn(lineCount);
-    
-    const range = new Range(
-        lineCount,
-        lastLineLength,
-        lineCount,
-        lastLineLength
-    );
+    const lineCount = monacoInstance.getModel()!.getLineCount();
+    const lastLineLength = monacoInstance.getModel()!.getLineMaxColumn(lineCount);
     
     monacoInstance.executeEdits('', [
       {
@@ -80,7 +73,7 @@ export default function Home() {
         },
         text,
       }
-    ])
+    ])!
   };
   
   const editorMount: OnMount = (editorL: editor.IStandaloneCodeEditor) => {
@@ -116,9 +109,13 @@ export default function Home() {
       }
 
       console.log(completion);
-      const resp = completion.data.choices[0].text;
-      insertText(resp);
-      setInput(input + resp);
+      try {
+        const resp: string = completion.data.choices[0].text!;
+        insertText(resp);
+        setInput(input + resp);
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     setSubmitDisabled(true);
@@ -158,7 +155,7 @@ export default function Home() {
                   height="90vh"
                   defaultLanguage="plaintext"
                   defaultValue={input}
-                  onChange={(v) => setInput(v)}
+                  onChange={(v: string|undefined) => { if(v) setInput(v) }}
                   />
               </div>
             </div>

@@ -3,7 +3,7 @@ import { Tooltip } from 'flowbite-react';
 interface TextboxProps {
   label: string;
   tooltip: string;
-  value: number;
+  value: string;
   setValue: any;
 }
 
