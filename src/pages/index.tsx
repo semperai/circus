@@ -6,11 +6,12 @@ import styles from '@/styles/Home.module.css'
 import {
   Checkbox,
   DropDownSelector,
-  Editor,
   ErrorPopup,
   RangeSliderTextbox,
   Textbox,
 } from '../components';
+import Editor, { Monaco, OnMount } from "@monaco-editor/react";
+import { editor, languages } from 'monaco-editor';
 
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
@@ -26,9 +27,13 @@ const models = [
   {id: 'text-curie-001',   name: 'text-curie-001',   max_tokens: 2048, tokenizer: gpt3Tokenizer },
   {id: 'text-babbage-001', name: 'text-babbage-001', max_tokens: 2048, tokenizer: gpt3Tokenizer },
   {id: 'text-ada-001',     name: 'text-ada-001',     max_tokens: 2048, tokenizer: gpt3Tokenizer },
+  {id: 'code-davinci-002', name: 'code-davinci-002', max_tokens: 4096, tokenizer: codexTokenizer },
+  {id: 'code-cushman-001', name: 'text-cushman-001', max_tokens: 2048, tokenizer: codexTokenizer },
 ];
 
 export default function Home() {
+  const [monacoInstance, setMonacoInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
+
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [advanced, setAdvanced] = useState(process.env.NEXT_PUBLIC_OPENAI_API_KEY === '' || process.env.NEXT_PUBLIC_OPENAI_BASE_URI === '')
   const [submitDisabled, setSubmitDisabled] = useState(false)
@@ -50,6 +55,39 @@ export default function Home() {
   const [startText, setStartText] = useState('');
   const [restartText, setRestartText] = useState('');
 
+  const insertText = (text: string) => {
+    if (! monacoInstance) {
+      return;
+    }
+
+    const lineCount = monacoInstance.getModel().getLineCount();
+    const lastLineLength = monacoInstance.getModel().getLineMaxColumn(lineCount);
+    
+    const range = new Range(
+        lineCount,
+        lastLineLength,
+        lineCount,
+        lastLineLength
+    );
+    
+    monacoInstance.executeEdits('', [
+      {
+        range: {
+          startLineNumber: lineCount,
+          startColumn: lastLineLength,
+          endLineNumber: lineCount,
+          endColumn: lastLineLength,
+        },
+        text,
+      }
+    ])
+  };
+  
+  const editorMount: OnMount = (editorL: editor.IStandaloneCodeEditor) => {
+      setMonacoInstance(editorL);
+  };
+
+
   async function handleSubmit() {
     async function handle() {
       const configuration = new Configuration({
@@ -58,27 +96,28 @@ export default function Home() {
       });
       const openai = new OpenAIApi(configuration);
 
-	  let completion;
+      let completion;
       const req = {
         model: model.id,
         prompt: input,
         temperature,
-	    max_tokens: maxTokens,
+        max_tokens: maxTokens,
         top_p: topP,
         presence_penalty: presencePenalty,
         frequency_penalty: frequencyPenalty,
       };
       console.log(req);
-	  try {
+      try {
         completion = await openai.createCompletion(req);
-	  } catch (e) {
+      } catch (e) {
         setErrorPopupContent(JSON.stringify(e));
         setErrorPopupOpen(true);
-	    return;
-	  }
+        return;
+      }
 
-	  console.log(completion);
+      console.log(completion);
       const resp = completion.data.choices[0].text;
+      insertText(resp);
       setInput(input + resp);
     }
 
@@ -90,7 +129,6 @@ export default function Home() {
   }
 
   const encoded: { bpe: number[]; text: string[] } = model.tokenizer.encode(input);
-  console.log(encoded)
 
   return (
     <>
@@ -114,16 +152,15 @@ export default function Home() {
           </div>
           <main className="flex-1 bg-white">
             <div className="py-6">
-              <div className="mx-auto max-w px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto max-w max-h-screen">
                 <Editor
-                   placeholder="Type an input…"
-                   value={input}
-                   onValueChange={(content) => setInput(content)}
-                   highlight={(content) => /* highlight(code, languages.jsx!, 'jsx')*/ content}
-                   padding={0}
-                   className="container__editor h-screen overflow-y-auto"
-                 />
-			  </div>
+                  onMount={editorMount}
+                  height="90vh"
+                  defaultLanguage="plaintext"
+                  defaultValue={input}
+                  onChange={(v) => setInput(v)}
+                  />
+              </div>
             </div>
           </main>
         </div>
@@ -135,9 +172,9 @@ export default function Home() {
               <nav className="flex-1 space-y-1 px-2">
 
                 <DropDownSelector
-				  label="Model"
+                  label="Model"
                   tooltip="Bigger models better"
-				  choices={models}
+                  choices={models}
                   selected={model}
                   setSelected={setModel}
                 />
@@ -215,7 +252,7 @@ export default function Home() {
                 </div>
               </nav>
             </div>
-		  </div>
+          </div>
 
           <div className="flex flex-shrink-0 border-t border-r border-gray-200 p-4 bg-white">
             <a href="#" className="group block w-full flex-shrink-0">
@@ -228,7 +265,7 @@ export default function Home() {
                     type="button"
                     className="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 py-1.5 px-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-25"
                     disabled={submitDisabled}
-					onClick={handleSubmit}
+                    onClick={handleSubmit}
                   >
                     Submit
                     <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
