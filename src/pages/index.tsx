@@ -16,7 +16,10 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import { Configuration, OpenAIApi } from "openai";
 
 const models = [
-  { id: 'text-davinci-003', name: 'text-davinci-003' },
+  'text-davinci-003',
+  'text-curie-001',
+  'text-babbage-001',
+  'text-ada-001',
 ]
 
 
@@ -33,7 +36,11 @@ export default function Home() {
   const [errorPopupOpen, setErrorPopupOpen] = useState(false)
 
   const [input, setInput] = useState('');
-  const [model, setModel] = useState(models[0])
+
+  const [model, setModel] = useState({
+    id:   models[0],
+    name: models[0],
+  })
   const [temperature, setTemperature] = useState(0.8);
   const [maxTokens, setMaxTokens] = useState(256);
   const [topP, setTopP] = useState(1.0);
@@ -112,7 +119,7 @@ export default function Home() {
                 <DropDownSelector
 				  label="Model"
                   tooltip="Bigger models better"
-				  choices={models}
+				  choices={models.map((m) => ({ id: m, name: m }))}
                   selected={model}
                   setSelected={setModel}
                 />
