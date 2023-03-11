@@ -76,11 +76,11 @@ export default function Home() {
   useEffect(() => {
     function keyHandler() {
       // hack to keep input and monaco in sync
-      setTimeout(() => {
+      window.requestAnimationFrame(() => {
         if (monacoInstance !== null) {
           setInput(monacoInstance.getValue());
         }
-      }, 0);
+      });
     }
 
     document.addEventListener("keydown", keyHandler, true);
